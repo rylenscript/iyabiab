@@ -25,7 +25,6 @@ fetch('./message1.html')
     const doc = parser.parseFromString(html, 'text/html');
 
     const messages = doc.querySelectorAll('div.pam');
-
     const chat = document.getElementById('chat');
 
     messages.forEach(msg => {
@@ -36,21 +35,21 @@ fetch('./message1.html')
       if (!sender || !time) return;
 
       const textBlock = msg.querySelector('div._a6-p');
-      let text = '';
-      let isLiked = false;
+      let text = textBlock ? textBlock.innerText.trim() : '';
+
       let isEdited = false;
+      let isLiked = false;
 
-      if (textBlock) {
-        text = textBlock.innerText.trim();
+      // detect edited
+      if (text.toLowerCase().includes('(edited)')) {
+        isEdited = true;
+        text = text.replace('(edited)', '').trim();
+      }
 
-        if (text.toLowerCase().includes('liked a message')) {
-          isLiked = true;
-        }
-
-        if (text.toLowerCase().includes('(edited)')) {
-          isEdited = true;
-          text = text.replace('(edited)', '').trim();
-        }
+      // detect "liked a message"
+      if (text.toLowerCase().includes('liked a message')) {
+        isLiked = true;
+        text = ''; // remove original system message completely
       }
 
       const bubble = document.createElement('div');
@@ -58,9 +57,11 @@ fetch('./message1.html')
 
       let meta = '';
 
-      if (isEdited) meta += `<span class="edited">edited</span>`;
-      if (isLiked) meta += `<span class="liked">❤ liked</span>`;
+      if (isEdited) {
+        meta += `<span class="edited">edited</span>`;
+      }
 
+      // build message
       bubble.innerHTML = `
         <div class="name">${sender}</div>
 
@@ -73,10 +74,18 @@ fetch('./message1.html')
 
       chat.appendChild(bubble);
 
+      // FIX 1: liked message becomes a pink indicator BELOW the message
+      if (isLiked) {
+        const like = document.createElement('div');
+        like.className = 'like-below';
+        like.innerText = '❤ liked';
+
+        chat.appendChild(like);
+      }
+
     });
 
   });
 </script>
-
 </body>
 </html>
