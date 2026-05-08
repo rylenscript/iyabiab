@@ -104,7 +104,7 @@ fetch('./message1.html')
 
         bubble.innerHTML = `
           <div class="name">${sender}</div>
-          ${text ? `<div class="bubble">${text}</div>` : ''}
+${text ? `<div class="bubble">${formatMessage(text)}</div>` : ''}
           <div class="meta">
             ${isEdited ? `<span class="edited">edited</span>` : ''}
           </div>
@@ -114,7 +114,28 @@ fetch('./message1.html')
         chat.appendChild(bubble);
       });
     }
+function formatMessage(text) {
 
+  const reelRegex = /(https?:\/\/(?:www\.)?instagram\.com\/reel\/[^\s]+)/g;
+
+  return text.replace(reelRegex, (url) => {
+
+    const embedUrl = url.replace("/reel/", "/p/");
+
+    return `
+      <div class="reel-container">
+        <iframe
+          src="${embedUrl}embed"
+          frameborder="0"
+          scrolling="no"
+          allowtransparency="true"
+          allowfullscreen>
+        </iframe>
+      </div>
+    `;
+  });
+
+}
     render();
 
     document.getElementById("searchInput").addEventListener("input", (e) => {
