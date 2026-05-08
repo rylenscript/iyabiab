@@ -74,23 +74,6 @@ fetch('./message1.html')
       const isEdited = rawText.includes("(edited)");
       const text = cleanText(rawText);
 
-      const links = [...msg.querySelectorAll('a')].map(a => a.href);
-
-const images = [...msg.querySelectorAll('img')].map(img => img.src);
-
-const videos = [...msg.querySelectorAll('video source')]
-  .map(v => v.src);
-
-const audio = links.filter(link =>
-  link.includes('.mp3') ||
-  link.includes('.m4a') ||
-  link.includes('.wav')
-);
-
-const reels = links.filter(link =>
-  link.includes('instagram.com/reel')
-);
-
       const key = sender + "|" + time;
 
       const existing = map.get(key);
@@ -121,29 +104,7 @@ const reels = links.filter(link =>
 
         bubble.innerHTML = `
           <div class="name">${sender}</div>
-${text ? `<div class="bubble">${text}</div>` : ''}
-
-${images.map(img => `
-  <img class="chat-image" src="${img}">
-`).join('')}
-
-${videos.map(video => `
-  <video class="chat-video" controls>
-    <source src="${video}">
-  </video>
-`).join('')}
-
-${audio.map(sound => `
-  <audio controls class="chat-audio">
-    <source src="${sound}">
-  </audio>
-`).join('')}
-
-${reels.map(reel => `
-  <a class="reel-link" href="${reel}" target="_blank">
-    🎬 View Reel
-  </a>
-`).join('')}
+          ${text ? `<div class="bubble">${text}</div>` : ''}
           <div class="meta">
             ${isEdited ? `<span class="edited">edited</span>` : ''}
           </div>
