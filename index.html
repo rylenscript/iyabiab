@@ -13,16 +13,21 @@
   <h1>Rylen ❤️ Khloe</h1>
   <p>Instagram Memories</p>
 </div>
-  
+  <div class="search-box">
+  <input id="searchInput" type="text" placeholder="Search messages...">
+</div>
 <div id="chat"></div>
 
 <script>
+let allMessages = [];
+
 fetch('./message1.html')
   .then(res => res.text())
   .then(html => {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+
     const messages = doc.querySelectorAll('div.pam');
     const chat = document.getElementById('chat');
 
@@ -41,8 +46,7 @@ fetch('./message1.html')
       const t = text.toLowerCase();
       return (
         t.includes("liked a message") ||
-        t.includes("reacted") ||
-        t.includes("reacted ❤️ to your message")
+        t.includes("reacted")
       );
     }
 
@@ -59,7 +63,6 @@ fetch('./message1.html')
       if (isSystemMessage(rawText)) return;
 
       const isEdited = rawText.includes("(edited)");
-
       const text = cleanText(rawText);
 
       const key = sender + "|" + time;
@@ -71,28 +74,42 @@ fetch('./message1.html')
       if (!existing) {
         map.set(key, data);
       } else {
-        // keep edited version if duplicate exists
         if (isEdited && !existing.isEdited) {
           map.set(key, data);
         }
       }
     });
 
-    map.forEach(({ sender, time, text, isEdited }) => {
+    function render(filter = "") {
+      chat.innerHTML = "";
 
-      const bubble = document.createElement('div');
-      bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
+      map.forEach(({ sender, time, text, isEdited }) => {
 
-      bubble.innerHTML = `
-        <div class="name">${sender}</div>
-        ${text ? `<div class="bubble">${text}</div>` : ''}
-        <div class="meta">
-          ${isEdited ? `<span class="edited">edited</span>` : ''}
-        </div>
-        <div class="time">${time}</div>
-      `;
+        if (filter && !text.toLowerCase().includes(filter.toLowerCase()) &&
+            !sender.toLowerCase().includes(filter.toLowerCase())) {
+          return;
+        }
 
-      chat.appendChild(bubble);
+        const bubble = document.createElement('div');
+        bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
+
+        bubble.innerHTML = `
+          <div class="name">${sender}</div>
+          ${text ? `<div class="bubble">${text}</div>` : ''}
+          <div class="meta">
+            ${isEdited ? `<span class="edited">edited</span>` : ''}
+          </div>
+          <div class="time">${time}</div>
+        `;
+
+        chat.appendChild(bubble);
+      });
+    }
+
+    render();
+
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      render(e.target.value);
     });
 
   });
