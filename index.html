@@ -24,86 +24,54 @@ fetch('./message1.html')
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    const nodes = Array.from(doc.querySelectorAll('div.pam'));
+    const messages = doc.querySelectorAll('div.pam');
+
     const chat = document.getElementById('chat');
 
-    let lastRealMessage = null;
+    messages.forEach(msg => {
 
-    function isSystemLike(text) {
-      return /reacted|liked a message/i.test(text);
-    }
-
-    function isEdited(text) {
-      return /\(edited\)/i.test(text);
-    }
-
-    nodes.forEach(node => {
-
-      const sender = node.querySelector('h2')?.innerText?.trim();
-      const time = node.querySelector('div._3-94._a6-o')?.innerText?.trim();
-      const textRaw = node.querySelector('div._a6-p')?.innerText?.trim() || '';
+      const sender = msg.querySelector('h2')?.innerText?.trim();
+      const time = msg.querySelector('div._3-94._a6-o')?.innerText?.trim();
 
       if (!sender || !time) return;
 
-      // -------------------------
-      // 1. HANDLE "LIKED / REACTED" SYSTEM MESSAGES
-      // -------------------------
-      if (isSystemLike(textRaw)) {
-        if (lastRealMessage) {
-          const likeTag = document.createElement('div');
-          likeTag.className = 'like-below';
-          likeTag.innerText = '❤ liked';
-          lastRealMessage.appendChild(likeTag);
+      const textBlock = msg.querySelector('div._a6-p');
+      let text = '';
+      let isLiked = false;
+      let isEdited = false;
+
+      if (textBlock) {
+        text = textBlock.innerText.trim();
+
+        if (text.toLowerCase().includes('liked a message')) {
+          isLiked = true;
         }
-        return; // NEVER render as bubble
+
+        if (text.toLowerCase().includes('(edited)')) {
+          isEdited = true;
+          text = text.replace('(edited)', '').trim();
+        }
       }
 
-      // -------------------------
-      // 2. HANDLE EDITED MESSAGES
-      // -------------------------
-      let isEdit = isEdited(textRaw);
-      let cleanText = textRaw.replace('(edited)', '').trim();
-
-      // If this looks like a duplicate edit artifact, skip old versions
-      const alreadyRendered = lastRealMessage &&
-        lastRealMessage.dataset &&
-        lastRealMessage.dataset.fingerprint === cleanText;
-
-      if (alreadyRendered && isEdit) {
-        lastRealMessage.querySelector('.bubble').innerText = cleanText;
-        lastRealMessage.querySelector('.meta')?.remove();
-
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        meta.innerText = 'edited';
-        lastRealMessage.appendChild(meta);
-
-        return;
-      }
-
-      // -------------------------
-      // 3. CREATE NORMAL MESSAGE
-      // -------------------------
       const bubble = document.createElement('div');
       bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
 
-      bubble.dataset.fingerprint = cleanText;
+      let meta = '';
+
+      if (isEdited) meta += `<span class="edited">edited</span>`;
+      if (isLiked) meta += `<span class="liked">❤ liked</span>`;
 
       bubble.innerHTML = `
         <div class="name">${sender}</div>
-        <div class="bubble">${cleanText}</div>
+
+        ${text ? `<div class="bubble">${text}</div>` : ''}
+
+        ${meta ? `<div class="meta">${meta}</div>` : ''}
+
         <div class="time">${time}</div>
       `;
 
-      if (isEdit) {
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        meta.innerText = 'edited';
-        bubble.appendChild(meta);
-      }
-
       chat.appendChild(bubble);
-      lastRealMessage = bubble;
 
     });
 
