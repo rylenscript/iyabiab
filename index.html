@@ -23,9 +23,11 @@ fetch('./message1.html')
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+
     const messages = doc.querySelectorAll('div.pam');
     const chat = document.getElementById('chat');
 
+    // store ONLY latest version of each message
     const map = new Map();
 
     function cleanText(text = "") {
@@ -59,36 +61,38 @@ fetch('./message1.html')
       if (isSystemMessage(rawText)) return;
 
       const isEdited = rawText.includes("(edited)");
+      const isLiked = rawText.toLowerCase().includes("liked");
 
       const text = cleanText(rawText);
 
       const key = sender + "|" + time;
 
-      const existing = map.get(key);
-
-      const data = { sender, time, text, isEdited };
-
-      if (!existing) {
-        map.set(key, data);
-      } else {
-        // keep edited version if duplicate exists
-        if (isEdited && !existing.isEdited) {
-          map.set(key, data);
-        }
-      }
+      // ALWAYS overwrite older version → fixes duplicate old + edited messages
+      map.set(key, {
+        sender,
+        time,
+        text,
+        isEdited,
+        isLiked
+      });
     });
 
-    map.forEach(({ sender, time, text, isEdited }) => {
+    // render
+    map.forEach(({ sender, time, text, isEdited, isLiked }) => {
 
       const bubble = document.createElement('div');
       bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
 
       bubble.innerHTML = `
         <div class="name">${sender}</div>
+
         ${text ? `<div class="bubble">${text}</div>` : ''}
+
         <div class="meta">
+          ${isLiked ? `<span class="liked">💗 liked</span>` : ''}
           ${isEdited ? `<span class="edited">edited</span>` : ''}
         </div>
+
         <div class="time">${time}</div>
       `;
 
