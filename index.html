@@ -17,78 +17,67 @@
 <div id="chat"></div>
 
 <script>
-fetch('./message1.html')
+fetch('message1.html')
   .then(res => res.text())
   .then(html => {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const messages = doc.querySelectorAll('div.pam');
+
+    const messages = doc.querySelectorAll('.pam');
     const chat = document.getElementById('chat');
 
-    const map = new Map();
-
-    function cleanText(text = "") {
+    function clean(text = "") {
       return text
-        .replace("❤Khloe", "")
-        .replace("❤Rylen", "")
-        .replace("(edited)", "")
-        .replace(/\s+/g, " ")
+        .replace(/\(edited\)/g, '')
+        .replace(/❤Khloe|❤Rylen/g, '')
         .trim();
     }
 
-    function isSystemMessage(text = "") {
+    function systemMessage(text = "") {
       const t = text.toLowerCase();
+
       return (
-        t.includes("liked a message") ||
-        t.includes("reacted") ||
-        t.includes("reacted ❤️ to your message")
+        t.includes('liked a message') ||
+        t.includes('reacted') ||
+        t.includes('sent an attachment')
       );
     }
 
     messages.forEach(msg => {
 
-      const sender = msg.querySelector('h2')?.innerText?.trim();
-      const time = msg.querySelector('div._3-94._a6-o')?.innerText?.trim();
-      const textBlock = msg.querySelector('div._a6-p');
+      const sender =
+        msg.querySelector('h2')?.innerText?.trim();
 
-      if (!sender || !time) return;
+      const time =
+        msg.querySelector('div._3-94._a6-o')
+          ?.innerText?.trim();
 
-      let rawText = textBlock ? textBlock.innerText.trim() : "";
+      const textElement =
+        msg.querySelector('div._a6-p');
 
-      if (isSystemMessage(rawText)) return;
+      if (!sender || !time || !textElement) return;
 
-      const isEdited = rawText.includes("(edited)");
+      const rawText = textElement.innerText.trim();
 
-      const text = cleanText(rawText);
+      if (systemMessage(rawText)) return;
 
-      const key = sender + "|" + time;
+      const text = clean(rawText);
 
-      const existing = map.get(key);
-
-      const data = { sender, time, text, isEdited };
-
-      if (!existing) {
-        map.set(key, data);
-      } else {
-        // keep edited version if duplicate exists
-        if (isEdited && !existing.isEdited) {
-          map.set(key, data);
-        }
-      }
-    });
-
-    map.forEach(({ sender, time, text, isEdited }) => {
+      const isYou = sender === 'Rylen';
 
       const bubble = document.createElement('div');
-      bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
+
+      bubble.className =
+        `message ${isYou ? 'you' : 'her'}`;
 
       bubble.innerHTML = `
         <div class="name">${sender}</div>
-        ${text ? `<div class="bubble">${text}</div>` : ''}
-        <div class="meta">
-          ${isEdited ? `<span class="edited">edited</span>` : ''}
+
+        <div class="bubble">
+          ${text}
         </div>
+
         <div class="time">${time}</div>
       `;
 
