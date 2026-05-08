@@ -128,16 +128,3 @@ body{
   color:red;
   margin-top:10px;
 }
-.reel-container{
-  margin-top:10px;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-.reel-container iframe{
-  width:100%;
-  max-width:320px;
-  height:550px;
-  border:none;
-  border-radius:20px;
-}
