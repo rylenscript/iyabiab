@@ -74,12 +74,12 @@ body{
 .like-below{
   font-size:12px;
   color:#e1306c;
-  margin-top:6px;
   font-weight:600;
+  margin:6px 0 10px 18px;
 }
 
 .meta{
   font-size:11px;
   opacity:0.6;
-  margin-top:4px;
+  margin-top:5px;
 }
