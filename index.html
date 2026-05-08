@@ -42,14 +42,24 @@ fetch('./message1.html')
 
     const map = new Map();
 
-    function cleanText(text = "") {
-      return text
-        .replace("❤Khloe", "")
-        .replace("❤Rylen", "")
-        .replace("(edited)", "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
+function cleanText(text = "") {
+
+  text = text
+    .replace("❤Khloe", "")
+    .replace("❤Rylen", "")
+    .replace("(edited)", "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // detect instagram reel links
+  const reelMatch = text.match(/https?:\/\/(www\.)?instagram\.com\/reel\/[^\s]+/);
+
+  if (reelMatch) {
+    return reelMatch[0];
+  }
+
+  return text;
+}
 
     function isSystemMessage(text = "") {
       const t = text.toLowerCase();
