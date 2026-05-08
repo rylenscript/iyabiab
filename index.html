@@ -116,8 +116,10 @@ function cleanText(text = "") {
           <div class="name">${sender}</div>
           ${text ? `<div class="bubble">${text}</div>` : ''}
 <div class="meta">
+<div class="meta">
   ${isEdited ? `<span class="edited">edited</span>` : ''}
   ${rawText.includes("❤") ? `<span class="liked">❤</span>` : ''}
+</div>
 </div>
           <div class="time">${time}</div>
         `;
