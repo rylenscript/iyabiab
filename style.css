@@ -55,48 +55,19 @@ body{
 }
 
 .meta{
-  font-size:11px;
+  font-size:12px;
+  margin-top:4px;
   opacity:0.6;
-  margin-top:3px;
   display:flex;
   gap:8px;
 }
 
 .edited{
+  color:gray;
   font-style:italic;
 }
 
 .liked{
   color:#e1306c;
-  font-weight:bold;
-}
-
-.media-img{
-  max-width:220px;
-  border-radius:12px;
-  margin:5px 0;
-}
-
-audio{
-  width:220px;
-  margin:5px 0;
-}
-.search-wrap{
-  text-align:center;
-  padding:15px;
-  background:white;
-  position:sticky;
-  top:0;
-  z-index:100;
-  box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-
-#search{
-  width:90%;
-  max-width:600px;
-  padding:12px;
-  border-radius:20px;
-  border:1px solid #ddd;
-  outline:none;
-  font-size:14px;
+  font-weight:600;
 }
