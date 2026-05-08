@@ -115,9 +115,10 @@ function cleanText(text = "") {
         bubble.innerHTML = `
           <div class="name">${sender}</div>
           ${text ? `<div class="bubble">${text}</div>` : ''}
-          <div class="meta">
-            ${isEdited ? `<span class="edited">edited</span>` : ''}
-          </div>
+<div class="meta">
+  ${isEdited ? `<span class="edited">edited</span>` : ''}
+  ${rawText.includes("❤") ? `<span class="liked">❤</span>` : ''}
+</div>
           <div class="time">${time}</div>
         `;
 
