@@ -71,3 +71,9 @@ body{
   color:#e1306c;
   font-weight:600;
 }
+.chat-image {
+  max-width: 260px;
+  border-radius: 18px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
