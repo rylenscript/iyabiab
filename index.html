@@ -25,8 +25,23 @@ fetch('./message1.html')
     const doc = parser.parseFromString(html, 'text/html');
 
     const messages = doc.querySelectorAll('div.pam');
-
     const chat = document.getElementById('chat');
+
+    function createMessage(sender, time, text, metaHTML, mediaHTML) {
+
+      const el = document.createElement('div');
+      el.className = sender === 'Rylen' ? 'message you' : 'message her';
+
+      el.innerHTML = `
+        <div class="name">${sender}</div>
+        ${mediaHTML || ''}
+        ${text ? `<div class="bubble">${text}</div>` : ''}
+        ${metaHTML ? `<div class="meta">${metaHTML}</div>` : ''}
+        <div class="time">${time}</div>
+      `;
+
+      return el;
+    }
 
     messages.forEach(msg => {
 
@@ -35,45 +50,47 @@ fetch('./message1.html')
 
       if (!sender || !time) return;
 
-      const textBlock = msg.querySelector('div._a6-p');
       let text = '';
-      let isLiked = false;
-      let isEdited = false;
+      let meta = '';
+      let media = '';
 
-      if (textBlock) {
-        text = textBlock.innerText.trim();
+      const content = msg.querySelector('div._a6-p');
+      if (content) {
 
+        text = content.innerText.trim();
+
+        // LIKED MESSAGE
         if (text.toLowerCase().includes('liked a message')) {
-          isLiked = true;
+          meta += `<span class="liked">❤ liked</span>`;
         }
 
+        // EDITED MESSAGE
         if (text.toLowerCase().includes('(edited)')) {
-          isEdited = true;
+          meta += `<span class="edited">edited</span>`;
           text = text.replace('(edited)', '').trim();
         }
+
+        // IMAGE / MEDIA HANDLING
+        const imgs = content.querySelectorAll('img');
+        imgs.forEach(img => {
+          media += `<img src="${img.src}" class="media-img">`;
+        });
+
+        // AUDIO HANDLING (voice notes)
+        const audio = content.querySelectorAll('audio');
+        audio.forEach(a => {
+          media += `<audio controls src="${a.src}"></audio>`;
+        });
       }
 
-      const bubble = document.createElement('div');
-      bubble.className = sender === 'Rylen' ? 'message you' : 'message her';
-
-      let meta = '';
-
-      if (isEdited) meta += `<span class="edited">edited</span>`;
-      if (isLiked) meta += `<span class="liked">❤ liked</span>`;
-
-      bubble.innerHTML = `
-        <div class="name">${sender}</div>
-
-        ${text ? `<div class="bubble">${text}</div>` : ''}
-
-        ${meta ? `<div class="meta">${meta}</div>` : ''}
-
-        <div class="time">${time}</div>
-      `;
-
-      chat.appendChild(bubble);
+      chat.appendChild(createMessage(sender, time, text, meta, media));
 
     });
+
+    // AUTO SCROLL LIKE INSTAGRAM
+    setTimeout(() => {
+      chat.scrollTop = chat.scrollHeight;
+    }, 200);
 
   });
 </script>
